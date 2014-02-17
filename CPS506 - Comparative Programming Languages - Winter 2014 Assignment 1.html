@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+
+
+
+
+
+
+
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+<!-- don't use a title attribute - makes them preferred, not persistent -->
+<link rel="stylesheet" type="text/css" media="all" href="Themes/Modern/simple.css" />
+<link rel="stylesheet" type="text/css" media="all" href="Themes/grid.css" />
+<script type="text/javascript" src="/JScript/header.js"></script>
+<!--[if lt IE 8]>
+<link rel="stylesheet" type="text/css" media="all" href="Themes/grid-ie8.css" />
+<![endif]-->
+
+<title>
+
+CPS506 - Comparative Programming Languages
+
+ - Winter 2014
+
+
+</title>
+
+
+
+
+
+</head>
+<body>
+   <div id="page">
+	<header class="intro grid in-fifths">      
+	  <div class="unit">
+<!--             <img src="Themes/kit.jpeg" alt="Kit" /> -->
+	  </div>  
+	  <div class="unit span-three">
+	      <h1><a href="/current">
+
+CPS506 - Comparative Programming Languages
+
+ - Winter 2014
+
+
+	      </a></h1>
+
+<h2>
+Assignment 1
+
+</h2>
+
+	  </div>
+	</header>
+	<div class="grid in-sevenths">
+	  <main class="full-unit">
+
+	    <nav class="unit" style="float:right">
+	      <ul>
+		<li><a href="/current/faq.html">Frequently Asked Questions</a></li>
+		<li><a href="/current/cmf.html">Course Management Form</a></li>
+		<li><a href="/current/Resources/">Resources</a></li>
+		<li><a href="/current/Assignments/">Assignments</a></li>
+
+		<li><a href="https://twitter.com/share" class="twitter-share-button" data-show-count="false" data-related="dmasonrose,RyersonCPS506" data-size="large" data-via="RyersonCPS506">Tweet</a></li>
+
+
+		<li><a href="https://twitter.com/RyersonCPS506" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @RyersonCPS506</a></li>
+
+	      </ul>
+	    </nav>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+
+<p>This assignment is in Ruby and will be worth 4% of the total mark.</p>
+
+<p>The visitor pattern is used to walk through a graph (frequently a tree), performing some computation on each node of the graph.
+In statically-typed, object-oriented languages like <code>Java</code>, this involves an interface (with a method for every node type in the graph) for each different result type of visit required, plus an implementation for each traversal that is required, plus accept methods in each node class that calls the visitor object.
+This may not be as bad as it sounds, and is cleaner than the alternatives, but is still tricky to get right.
+The <a href="https://en.wikipedia.org/wiki/Visitor_pattern">Wikipedia entry</a> is quite good, and <a href="http://www.oodesign.com/visitor-pattern.html">this link</a> also shows that you don't have to use overloading to select the methods (which will be useful in the Ruby case).
+
+<p>
+The problem is in three parts:
+</p>
+<ol>
+  <li>
+  Parse the input: <code>(([RC]k([,-]l)*)*+m;)*</code> (where k,l,m are positive integers of any size) and build a tree.
+  Valid row/column parameters can have any number of commas, but only one range, so valid ones include: <code>1,3,15</code> and <code>1-4</code> but not <code>1-3,4</code> or <code>1-3-5</code>.
+  The tree would have up to 4 levels: a top level just containing a set of second level values, a second level for each increment, and 3rd (and possibly 4th) with row/column information.
+  </li>
+  <li>Walk the tree, assigning values to an array (both rows and columns must be rounded up from the minimum referenced in the trees to be an od number). (likely using the visitor pattern).</li>
+  <li>
+  Walk from the center to each corner of the array, finding the minimum path to each corner, and output the corner with the maximum.
+  In the walk, <b>only</b> move toward the corner - <b>no backtracking</b>!
+  This makes this quite a bit simpler.
+  If more than one corner has the same maximum value, output all those corners in left-&gt;right, top-&gt;bottom order
+  </li>
+</ol>
+<p>
+Note: all inputs will be valid!  You do not need to provide any error handling.
+</p>
+<ul>
+  <li>
+  Consider: <code>C1R5+2;R3-4C2C7+4;R5R2-3C1-6+3;</code>.
+  This would parse into the following tree (which you don't output for the hand-in version):
+<pre>
+         T
+        /|\
+      /  |  \
+    /    |    \
+  /      |      \
+I+2     I+4     I+3
+ |       |      /  \
+C1     R3-4    R5  R2-3
+ |     /  \          |
+R5    C2  C7       C1-6
+</pre>
+  and produce the following array (which you don't output for the hand-in version):
+  <table>
+    <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>0</td></tr>
+    <tr><td>3</td><td>7</td><td>3</td><td>3</td><td>3</td><td>3</td><td>4</td></tr>
+    <tr><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4</td></tr>
+    <tr><td>5</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td></tr>
+  </table>
+  The minimum path costs are: top-left=6 top-right=6 bottom-left=12 bottom-right=9.
+  The maximum of those is 12, so the output would be:
+  <pre>
+BOTTOM-LEFT
+</pre>
+</li>
+  <li>
+  Consider the almost identical: <code>C1R1+4;R3-4C2C7+4;R5R2-3C1-6+3;</code>.
+  This would parse into the following tree (which you don't output for the hand-in version):
+<pre>
+         T
+        /|\
+      /  |  \
+    /    |    \
+  /      |      \
+I+4     I+4     I+3
+ |       |      /  \
+C1     R3-4    R5  R2-3
+ |     /  \          |
+R1    C2  C7       C1-6
+</pre>
+  and produce the following array (which you don't output for the hand-in version):
+  <table>
+    <tr><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>0</td></tr>
+    <tr><td>3</td><td>7</td><td>3</td><td>3</td><td>3</td><td>3</td><td>4</td></tr>
+    <tr><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4</td></tr>
+    <tr><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td></tr>
+  </table>
+  The minimum path costs are: top-left=10 top-right=6 bottom-left=10 bottom-right=9.
+  The maximum of those is 10 (at 2 corners), so the output would be:
+  <pre>
+TOP-LEFT BOTTOM-LEFT
+</pre>
+</li>
+  <li>
+  Consider the almost identical: <code>C1,6R1+4;R3-4C2C7+4;R5R2-3C1-6+3;</code>.
+  This would parse into the following tree (which you don't output for the hand-in version):
+<pre>
+         T
+        /|\
+      /  |  \
+    /    |    \
+  /      |      \
+I+4     I+4     I+3
+ |       |      /  \
+C1,6     R3-4  R5  R2-3
+ |     /  \          |
+R1    C2  C7       C1-6
+</pre>
+  and produce the following array (which you don't output for the hand-in version):
+  <table>
+    <tr><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4</td><td>0</td></tr>
+    <tr><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>0</td></tr>
+    <tr><td>3</td><td>7</td><td>3</td><td>3</td><td>3</td><td>3</td><td>4</td></tr>
+    <tr><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4</td></tr>
+    <tr><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td></tr>
+  </table>
+  The minimum path costs are: top-left=10 top-right=10 bottom-left=10 bottom-right=9.
+  The maximum of those is 10 (at 3 corners), so the output would be (note the order):
+  <pre>
+TOP-LEFT TOP-RIGHT BOTTOM-LEFT
+</pre>
+</li>
+  <li>
+  To demonstrate the "only walk towards corner" rule, consider the similar: <code>C1,8R1+4;R3-4C2C7+4;R5R2-3C1-6+3;R2-3C6+2;</code>.
+  This would parse into the following tree (which you don't output for the hand-in version):
+<pre>
+         T
+        /|\ \
+      /  |  \  \
+    /    |    \   \
+  /      |      \    \
+I+4     I+4     I+3  I+2
+ |       |      /  \    \
+C1,8     R3-4  R5  R2-3  R2-3
+ |     /  \          |    |
+R1    C2  C7       C1-6  C6
+</pre>
+  and produce the following array (which you don't output for the hand-in version):
+  <table>
+    <tr><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4</td><td>0</td></tr>
+    <tr><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>5</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>3</td><td>7</td><td>3</td><td>3</td><td>3</td><td>5</td><td>4</td><td>0</td><td>0</td></tr>
+    <tr><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4</td><td>0</td><td>0</td></tr>
+    <tr><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>3</td><td>0</td><td>0</td></tr>
+  </table>
+  The minimum path costs are: top-left=10 top-right=10 bottom-left=10 bottom-right=7.
+  The maximum of those is 10 (at 3 corners), so the output would be (note the order):
+  <pre>
+TOP-LEFT TOP-RIGHT BOTTOM-LEFT
+</pre>
+  If the "only walk towards corner" rule hadn't applied, the top-right would equal 6, but because we can only walk toward the corner, we can't avoid the 4.
+  Note that this array was rounded up to 5x9 even though the largest referenced column was 8.
+</li>
+</ul>
+
+</main>
+</div>
+<footer class="grid in-sixths">
+  <span class="screen-only">
+    <a class="unit" href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml11" alt="Valid XHTML 1.1" /></a>
+    <a class="unit" href="http://jigsaw.w3.org/css-validator/check/referer"><img src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!" /></a>
+  </span>
+  <span class="modified unit">Last modified: 2014.02.07 00:50</span>
+  <span class="license" title="licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License">
+    <a class="unit" href="http://sarg.ryerson.ca/dmason">Dave Mason</a>
+    <a class="unit" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
+  </span>
+  <span  class="ryerson unit"><a href="http://ryerson.ca/"><img src="/Themes/Ryerson/RU_Logo-small.jpg" alt="Ryerson University" /></a></span>
+</footer>
+</div>
+
+</body>
+</html>
